@@ -78,9 +78,8 @@ Resources:
   PublicSubnetJumpBox:
     Type: 'AWS::EC2::Subnet'
     Properties:
-      AvailabilityZone: eu-west-1a
       VpcId: !Ref VPC
-      CidrBlock: 10.0.0.0/24
+      CidrBlock: 10.0.1.0/24
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Application
@@ -103,6 +102,7 @@ Resources:
   EC2JumpBox:
     Type: 'AWS::EC2::Instance'
     Properties:
+      AvailabilityZone: eu-west-1a
       SecurityGroups:
         - !Ref EC2JumpBoxSG
       Tags:
@@ -115,3 +115,46 @@ Resources:
           - !Ref AWS::Region
           - AMZNLINUX2
       KeyName: !Ref KeyName
+
+# App Instance
+  PrivateSubnetAppInstance:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId: !Ref VPC
+      CidrBlock: 10.0.2.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackId'
+  SubnetRouteTableAssociationAppInstance:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref PrivateSubnetAppInstance
+      RouteTableId: !Ref RouteTable      
+  EC2AppInstanceSG:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupName: EC2AppInstanceSG
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: !Ref SSHLocation  
+  EC2AppInstance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      AvailabilityZone: eu-west-1b
+      InstanceType: !Ref EC2InstanceType
+      SecurityGroups:
+        - !Ref EC2AppInstanceSG
+      Tags:
+        - Key: Name
+          Value: appInstance
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - !Ref EC2InstanceType
+          - Arch
