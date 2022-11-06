@@ -23,14 +23,14 @@ Parameters:
       - t2.nano
       - t2.micro
     ConstraintDescription: Only free tiers instance types are allowed.
-  SSHLocation:
-    Description: The IP address range that can be used to SSH to the EC2 instances
+  MyIpSSHLocation:
+    Description: My own Ip to connect on EC2 instances
     Type: String
     MinLength: '9'
     MaxLength: '18'
     Default: 79.145.49.216/32 #my public IP address
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
-    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+    ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x. 
 Mappings:
   AWSInstanceType2Arch:
     t2.micro:
@@ -74,6 +74,8 @@ Resources:
       Tags:
         - Key: Application
           Value: !Ref 'AWS::StackId'
+        - Key: Name
+          Value: IaCRouteTable
   Route:
     Type: 'AWS::EC2::Route'
     DependsOn: AttachGateway
@@ -108,7 +110,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: '22'
           ToPort: '22'
-          CidrIp: !Ref SSHLocation
+          CidrIp: !Ref MyIpSSHLocation
   EC2JumpBox:
     Type: 'AWS::EC2::Instance'
     Properties:
@@ -146,12 +148,12 @@ Resources:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupName: EC2OtherServerSG
-      GroupDescription: Enable SSH access via port 22
+      GroupDescription: Enable SSH access only from jumpBox via port 22
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '22'
           ToPort: '22'
-          CidrIp: !Ref SSHLocation  
+          SourceSecurityGroupId: !GetAtt EC2JumpBoxSG.GroupId
   EC2OtherServer:
     Type: 'AWS::EC2::Instance'
     Properties:
@@ -194,12 +196,12 @@ Resources:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupName: EC2AppInstanceSG
-      GroupDescription: Enable SSH access via port 22
+      GroupDescription: Enable SSH access only from jumpBox via port 22
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '22'
           ToPort: '22'
-          CidrIp: !Ref SSHLocation  
+          SourceSecurityGroupId: !GetAtt EC2JumpBoxSG.GroupId 
   EC2AppInstance:
     Type: 'AWS::EC2::Instance'
     Properties:
@@ -238,12 +240,12 @@ Resources:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupName: EC2DatabaseServerSG
-      GroupDescription: Enable SSH access via port 22
+      GroupDescription: Enable SSH access only from jumpBox via port 22
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: '22'
           ToPort: '22'
-          CidrIp: !Ref SSHLocation  
+          SourceSecurityGroupId: !GetAtt EC2JumpBoxSG.GroupId 
   EC2DatabaseServer:
     Type: 'AWS::EC2::Instance'
     Properties:
