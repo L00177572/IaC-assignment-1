@@ -171,6 +171,7 @@ Resources:
           - AWSInstanceType2Arch
           - !Ref EC2InstanceType
           - Arch
+      KeyName: !Ref KeyName
 #endregion - Other Server - F
 
 #endregion - AvailabilityZone 1
@@ -219,6 +220,7 @@ Resources:
           - AWSInstanceType2Arch
           - !Ref EC2InstanceType
           - Arch
+      KeyName: !Ref KeyName
 #endregion - App Instance
 
 #region - Database - D
@@ -263,6 +265,7 @@ Resources:
           - AWSInstanceType2Arch
           - !Ref EC2InstanceType
           - Arch
+      KeyName: !Ref KeyName
 #endregion - Other Server - D
 
 #endregion - AvailabilityZone 2
