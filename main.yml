@@ -32,20 +32,10 @@ Parameters:
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x. 
 Mappings:
-  AWSInstanceType2Arch:
-    t2.micro:
-      Arch: HVM64
-  AWSInstanceType2NATArch:
-    t2.micro:
-      Arch: NATHVM64
   AWSRegionArch2AMI:
     eu-west-1:
-      HVM64: ami-015232c01a82b847b
-      HVMG2: ami-0d5299b1c6112c3c7
       AMZNLINUX2: ami-07d9160fa81ccffb5
-    eu-west-2:
-      HVM64: ami-0765d48d7e15beb93
-      HVMG2: NOT_SUPPORTED
+      UBUNTU: ami-0f29c8402f8cce65c
 
 Resources:
 # general
@@ -164,13 +154,11 @@ Resources:
       Tags:
         - Key: Name
           Value: otherService
-      ImageId: !FindInMap 
-        - AWSRegionArch2AMI
-        - !Ref 'AWS::Region'
-        - !FindInMap 
-          - AWSInstanceType2Arch
-          - !Ref EC2InstanceType
-          - Arch
+      ImageId:
+        Fn::FindInMap:
+          - AWSRegionArch2AMI
+          - !Ref AWS::Region
+          - AMZNLINUX2
       KeyName: !Ref KeyName
 #endregion - Other Server - F
 
@@ -213,13 +201,11 @@ Resources:
       Tags:
         - Key: Name
           Value: appInstance
-      ImageId: !FindInMap 
-        - AWSRegionArch2AMI
-        - !Ref 'AWS::Region'
-        - !FindInMap 
-          - AWSInstanceType2Arch
-          - !Ref EC2InstanceType
-          - Arch
+      ImageId:
+        Fn::FindInMap:
+          - AWSRegionArch2AMI
+          - !Ref AWS::Region
+          - AMZNLINUX2
       KeyName: !Ref KeyName
 #endregion - App Instance
 
@@ -258,14 +244,13 @@ Resources:
       Tags:
         - Key: Name
           Value: databaseServer
-      ImageId: !FindInMap 
-        - AWSRegionArch2AMI
-        - !Ref 'AWS::Region'
-        - !FindInMap 
-          - AWSInstanceType2Arch
-          - !Ref EC2InstanceType
-          - Arch
+      ImageId:
+        Fn::FindInMap:
+          - AWSRegionArch2AMI
+          - !Ref AWS::Region
+          - UBUNTU
       KeyName: !Ref KeyName
+  
 #endregion - Other Server - D
 
 #endregion - AvailabilityZone 2
