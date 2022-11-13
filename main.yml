@@ -8,7 +8,7 @@ Parameters:
     Default: eu-west-1a
   AZtwo: 
     Type: String  
-    Description: AvailabilityZone One
+    Description: AvailabilityZone Two
     Default: eu-west-1b
   KeyName:
     Description: Amazon EC2 KeyPair
